@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FPGA FIR Filter Generator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <span class="eyebrow">FPGA SIGNAL PROCESSING</span>
+        <h1>FIR Filter Design Questionnaire</h1>
+        <p>Define your filter requirements and generate an implementation-ready design specification.</p>
+      </div>
+      <div class="progress-card">
+        <div class="progress-label"><span>Progress</span><strong id="progressText">0%</strong></div>
+        <div class="progress-track"><div id="progressBar"></div></div>
+      </div>
+    </header>
+
+    <nav class="level-nav" aria-label="Experience level">
+      <button class="level active" data-level="basic"><b>01</b><span>Basic</span><small>Filter requirements</small></button>
+      <button class="level" data-level="advanced"><b>02</b><span>Advanced</span><small>Numerical & architecture</small></button>
+      <button class="level" data-level="expert"><b>03</b><span>Expert</span><small>FPGA constraints</small></button>
+    </nav>
+
+    <form id="firForm">
+      <section class="form-section" data-section="basic">
+        <div class="section-heading"><span>01</span><div><h2>Project Information</h2><p>Tell us what you are building.</p></div></div>
+        <div class="grid">
+          <label>Project / Application Name <em>*</em><input name="projectName" required placeholder="e.g. Audio Noise Filter"></label>
+          <label>Experience Level <em>*</em>
+            <select name="experience" id="experience" required>
+              <option value="basic">Basic</option><option value="advanced">Advanced</option><option value="expert">Expert</option>
+            </select>
+          </label>
+          <label class="full">Brief Description <span>Optional</span><textarea name="description" placeholder="Briefly describe where the FIR filter will be used."></textarea></label>
+        </div>
+      </section>
+
+      <section class="form-section" data-section="basic">
+        <div class="section-heading"><span>02</span><div><h2>Filter Requirements</h2><p>Specify the desired signal-processing behavior.</p></div></div>
+        <div class="grid">
+          <label>Filter Type <em>*</em>
+            <select name="filterType" id="filterType" required>
+              <option value="">Select filter type</option><option>Low-pass</option><option>High-pass</option><option>Band-pass</option><option>Band-stop</option>
+            </select>
+          </label>
+          <label>Sampling Frequency <em>*</em><div class="input-unit"><input type="number" name="samplingFrequency" required min="0" step="any" placeholder="48000"><select name="samplingUnit"><option>Hz</option><option>kHz</option><option>MHz</option></select></div></label>
+          <label id="singleCutoff">Cutoff Frequency <em>*</em><div class="input-unit"><input type="number" name="cutoff" min="0" step="any" placeholder="8000"><span>Hz</span></div></label>
+          <div id="dualFrequency" class="conditional grid nested">
+            <label>Lower Frequency <em>*</em><div class="input-unit"><input type="number" name="lowerFrequency" min="0" step="any"><span>Hz</span></div></label>
+            <label>Upper Frequency <em>*</em><div class="input-unit"><input type="number" name="upperFrequency" min="0" step="any"><span>Hz</span></div></label>
+          </div>
+          <label>Passband Edge <span>Optional</span><div class="input-unit"><input type="number" name="passband" min="0" step="any"><span>Hz</span></div></label>
+          <label>Stopband Edge <span>Optional</span><div class="input-unit"><input type="number" name="stopband" min="0" step="any"><span>Hz</span></div></label>
+          <label>Passband Ripple <span>Optional</span><div class="input-unit"><input type="number" name="ripple" min="0" step="any" placeholder="0.5"><span>dB</span></div></label>
+          <label>Stopband Attenuation <em>*</em><div class="input-unit"><input type="number" name="attenuation" required min="0" step="any" placeholder="60"><span>dB</span></div></label>
+          <label>Number of Taps / Filter Order <em>*</em>
+            <select name="tapMode" id="tapMode" required><option value="auto">Let generator calculate</option><option value="taps">Specify number of taps</option><option value="order">Specify filter order</option></select>
+          </label>
+          <label id="tapValueWrap" class="conditional">Value <em>*</em><input type="number" name="tapValue" min="2" step="1" placeholder="47"></label>
+          <label>Filter Design Method
+            <select name="designMethod" id="designMethod"><option>Automatic</option><option>Kaiser Window</option><option>Hamming Window</option><option>Hann Window</option><option>Blackman Window</option><option>Parks-McClellan / Equiripple</option></select>
+          </label>
+          <label id="kaiserBetaWrap" class="conditional">Kaiser β <span>Optional</span><input type="number" name="kaiserBeta" min="0" step="any"></label>
+          <label>Linear Phase Requirement <em>*</em>
+            <select name="linearPhase" required><option>Yes</option><option>No</option><option>Not sure / Automatic</option></select>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section" data-section="basic">
+        <div class="section-heading"><span>03</span><div><h2>Basic Hardware</h2><p>Identify the FPGA platform and operating conditions.</p></div></div>
+        <div class="grid">
+          <label>FPGA Manufacturer <em>*</em><select name="manufacturer" required><option value="">Select manufacturer</option><option>AMD/Xilinx</option><option>Intel/Altera</option><option>Lattice</option><option>Microchip</option><option>Other</option></select></label>
+          <label>FPGA Part Number <span>Recommended</span><input name="fpgaPart" placeholder="e.g. XC7A35T-1CPG236C"></label>
+          <label>Development Board <span>Optional</span><input name="board" placeholder="e.g. Digilent Arty A7"></label>
+          <label>FPGA Tool <span>Optional</span><select name="tool"><option>Automatic</option><option>Vivado</option><option>Quartus</option><option>Radiant</option><option>Libero</option><option>Other</option></select></label>
+          <label>FPGA Clock Frequency <em>*</em><div class="input-unit"><input type="number" name="clock" required min="0" step="any" placeholder="100"><span>MHz</span></div></label>
+          <label>Input Sample Rate <em>*</em><div class="input-unit"><input type="number" name="sampleRate" required min="0" step="any" placeholder="48000"><span>samples/sec</span></div></label>
+          <label>Input Signal Source <em>*</em><select name="source" id="source" required><option>ADC</option><option>Another FPGA module</option><option>Microcontroller</option><option>DSP / Processor</option><option>External digital interface</option><option>Other</option></select></label>
+          <label id="adcResolutionWrap">ADC Resolution <span>Optional</span><select name="adcResolution"><option>12-bit</option><option>8-bit</option><option>10-bit</option><option>14-bit</option><option>16-bit</option><option>18-bit</option><option>Other</option></select></label>
+          <label>Required Throughput <select name="throughput"><option>Automatic</option><option>Match input sample rate</option><option>One sample per clock</option><option>Maximum possible</option><option>One sample per multiple clocks</option></select></label>
+        </div>
+      </section>
+
+      <section class="form-section advanced-only">
+        <div class="section-heading"><span>04</span><div><h2>Numerical Representation</h2><p>Control fixed-point precision and output behavior.</p></div></div>
+        <div class="grid">
+          <label>Input Data Width <em>*</em><select name="inputWidth" required><option>Automatic</option><option>8-bit</option><option>10-bit</option><option>12-bit</option><option>14-bit</option><option>16-bit</option><option>18-bit</option><option>24-bit</option><option>32-bit</option><option>Custom</option></select></label>
+          <label>Input Number Format <em>*</em><select name="inputFormat" required><option>Signed two's complement</option><option>Unsigned</option><option>Offset binary</option><option>Other</option></select></label>
+          <label>Input Q-Format <select name="inputQ"><option>Automatic</option><option>User specified</option></select></label>
+          <label>Coefficient Width <select name="coeffWidth"><option>Automatic</option><option>8-bit</option><option>10-bit</option><option>12-bit</option><option>16-bit</option><option>18-bit</option><option>20-bit</option><option>24-bit</option><option>Custom</option></select></label>
+          <label>Coefficient Q-Format <select name="coeffQ"><option>Automatic</option><option>User specified</option></select></label>
+          <label>Accumulator Width <select name="accWidth"><option>Automatic</option><option>User specified</option></select></label>
+          <label>Output Width <select name="outputWidth"><option>Same as input</option><option>Full accumulator precision</option><option>Automatic</option><option>User specified</option></select></label>
+          <label>Output Quantization <select name="rounding"><option>Automatic</option><option>Truncation</option><option>Round-to-nearest</option><option>Convergent rounding</option></select></label>
+          <label>Overflow Handling <select name="overflow"><option>Automatic</option><option>Saturation</option><option>Wrap-around</option></select></label>
+        </div>
+      </section>
+
+      <section class="form-section advanced-only">
+        <div class="section-heading"><span>05</span><div><h2>Architecture & Timing</h2><p>Define how the FIR should use FPGA resources.</p></div></div>
+        <div class="grid">
+          <label>FIR Architecture <select name="architecture"><option>Automatic</option><option>Direct Form</option><option>Transposed Form</option></select></label>
+          <label>Processing Architecture <select name="processing"><option>Automatic</option><option>Fully Parallel</option><option>Partially Parallel</option><option>Serial / Resource Shared</option></select></label>
+          <label>Symmetric Optimization <select name="symmetric"><option>Automatic</option><option>Enable</option><option>Disable</option></select></label>
+          <label>Optimization Priority <em>*</em><select name="optimization" required><option>Balanced</option><option>Maximum Speed / Fmax</option><option>Minimum FPGA Resources</option><option>Minimum Power</option></select></label>
+          <label>Maximum Allowed Latency <select name="latency"><option>No specific requirement</option><option>User specified</option></select></label>
+          <label>Throughput Requirement <select name="timingThroughput"><option>Automatic</option><option>One output per clock</option><option>Match input sample rate</option><option>Maximum possible</option><option>One output every N clocks</option></select></label>
+          <label>Pipelining <select name="pipelining"><option>Automatic</option><option>No additional pipeline stages</option><option>Maximum performance</option><option>User specified</option></select></label>
+          <label>Input and FIR clocks <em>*</em><select name="clockDomains" id="clockDomains" required><option>Same clock</option><option>Separate clocks</option><option>Not sure</option></select></label>
+          <label id="firClockWrap" class="conditional">FIR Processing Clock <div class="input-unit"><input type="number" name="firClock" min="0" step="any"><span>MHz</span></div></label>
+        </div>
+      </section>
+
+      <section class="form-section advanced-only">
+        <div class="section-heading"><span>06</span><div><h2>Interface & Control</h2><p>Define how the generated RTL connects to your design.</p></div></div>
+        <div class="grid">
+          <label>Interface Type <em>*</em><select name="interface" required><option>Automatic</option><option>Simple custom interface</option><option>data + valid</option><option>data + valid + ready</option><option>AXI4-Stream</option><option>Custom</option></select></label>
+          <label>Input Handshake <select name="inputHandshake"><option>Automatic</option><option>No handshake</option><option>valid</option><option>valid + ready</option><option>AXI4-Stream</option></select></label>
+          <label>Output Handshake <select name="outputHandshake"><option>Automatic</option><option>No handshake</option><option>valid</option><option>valid + ready</option><option>AXI4-Stream</option></select></label>
+          <label>Reset Type <select name="resetType"><option>Automatic</option><option>Synchronous</option><option>Asynchronous</option></select></label>
+          <label>Reset Polarity <select name="resetPolarity"><option>Active High</option><option>Active Low</option></select></label>
+          <label>Clock Enable <select name="clockEnable"><option>Automatic</option><option>Required</option><option>Not required</option></select></label>
+        </div>
+      </section>
+
+      <section class="form-section expert-only">
+        <div class="section-heading"><span>07</span><div><h2>Expert FPGA Constraints</h2><p>Set hard resource and implementation limits.</p></div></div>
+        <div class="grid">
+          <label>Maximum DSP Blocks <input name="maxDSP" type="number" min="0" placeholder="No specific limit"></label>
+          <label>Maximum LUT Usage <input name="maxLUT" type="number" min="0" placeholder="No specific limit"></label>
+          <label>Maximum BRAM Usage <input name="maxBRAM" type="number" min="0" placeholder="No specific limit"></label>
+          <label>Maximum FF Usage <input name="maxFF" type="number" min="0" placeholder="No specific limit"></label>
+          <label>Maximum Power <div class="input-unit"><input name="maxPower" type="number" min="0" step="any" placeholder="No specific limit"><span>W</span></div></label>
+          <label class="full">Other Hardware Constraints <textarea name="constraints" placeholder="Any placement, clock, resource, or integration constraints."></textarea></label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-heading"><span>08</span><div><h2>Verification & Output</h2><p>Choose what the generator should produce and verify.</p></div></div>
+        <div class="grid">
+          <label>Choose prefered HDL: <em>*</em><select name="hdl" required><option>Choose a language</option><option>Verilog</option><option>VHDL</option><option>System Verilog</option><option>Chisel</option><option>Bluespec (BSV)</option><option>MyHDL</option><option>SpinalHDL</option></select></label>
+          <label>Generate Testbench? <em>*</em><select name="testbench" required><option>Yes</option><option>No</option></select></label>
+          <label>Verification Model <select name="verification"><option>Both MATLAB & Python</option><option>MATLAB</option><option>Python</option><option>None</option></select></label>
+          <label>Simulation Tool <select name="simTool"><option>Automatic</option><option>Vivado Simulator</option><option>ModelSim</option><option>QuestaSim</option><option>Icarus Verilog</option><option>Verilator</option><option>Other</	option></select></label>
+          <fieldset class="full checks"><legend>Verification Requirements</legend>
+            <label><input type="checkbox" name="verify" value="Frequency response"> Frequency response</label>
+            <label><input type="checkbox" name="verify" value="Impulse response"> Impulse response</label>
+            <label><input type="checkbox" name="verify" value="Random input comparison"> Random input comparison</label>
+            <label><input type="checkbox" name="verify" value="Fixed-point comparison"> Fixed-point vs floating-point</label>
+            <label><input type="checkbox" name="verify" value="Overflow testing"> Overflow testing</label>
+            <label><input type="checkbox" name="verify" value="Latency verification"> Latency verification</label>
+            <label><input type="checkbox" name="verify" value="Throughput verification"> Throughput verification</label>
+          </fieldset>
+          <fieldset class="full checks"><legend>Additional Output</legend>
+            <label><input type="checkbox" name="output" value="Synthesis report"> Synthesis report</label>
+            <label><input type="checkbox" name="output" value="Timing report"> Timing report</label>
+            <label><input type="checkbox" name="output" value="Resource utilization report"> Resource utilization report</label>
+            <label><input type="checkbox" name="output" value="Frequency-response plot"> Frequency-response plot</label>
+            <label><input type="checkbox" name="output" value="Documentation"> Documentation</label>
+          </fieldset>
+          <label class="full">Additional Requirements / Notes <textarea name="notes" placeholder="Anything else the generator should know?"></textarea></label>
+        </div>
+      </section>
+
+      <section class="review">
+        <div>
+          <span class="eyebrow">FINAL REVIEW</span>
+          <h2>Ready to generate your FIR design?</h2>
+          <p>Your answers will be converted into a structured design specification. Automatic fields will be resolved by the generator.</p>
+        </div>
+        <label class="confirm"><input type="checkbox" id="confirm" required> I have reviewed the requirements and confirm they are correct. <em>*</em></label>
+        <button type="submit" class="submit-btn">Generate Design Specification →</button>
+      </section>
+    </form>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
